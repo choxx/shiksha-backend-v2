@@ -9,6 +9,10 @@ import {
   EsamwadUserService,
   EsamwadUserToken,
 } from "src/adapters/esamwad/user.adapter";
+import {
+  FusionAuthUserService,
+  FusionAuthUserToken,
+} from "../adapters/hasura/user.adapter";
 const ttl = process.env.TTL as never;
 @Module({
   imports: [
@@ -21,8 +25,10 @@ const ttl = process.env.TTL as never;
   providers: [
     UserService,
     EsamwadUserService,
+    FusionAuthUserService,
     { provide: SunbirdUserToken, useClass: UserService },
     { provide: EsamwadUserToken, useClass: EsamwadUserService },
+    { provide: FusionAuthUserToken, useClass: FusionAuthUserService },
   ],
 })
 export class UserModule {}

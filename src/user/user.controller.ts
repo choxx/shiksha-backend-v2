@@ -32,13 +32,16 @@ import { UserDto } from "./dto/user.dto";
 import { UserSearchDto } from "./dto/user-search.dto";
 import { IServicelocator } from "src/adapters/userservicelocator";
 import { EsamwadUserToken } from "src/adapters/esamwad/user.adapter";
+import { Adapter } from "../global.status.enum";
+import { FusionAuthUserToken } from "../adapters/hasura/user.adapter";
 @ApiTags("User")
 @Controller("user")
 export class UserController {
   constructor(
     private readonly service: UserService,
     @Inject(EsamwadUserToken) private eSamwadProvider: IServicelocator,
-    @Inject(SunbirdUserToken) private sunbirdProvider: IServicelocator
+    @Inject(SunbirdUserToken) private sunbirdProvider: IServicelocator,
+    @Inject(FusionAuthUserToken) private fusionAuthProvider: IServicelocator
   ) {}
 
   @Get("/:id")
@@ -66,6 +69,8 @@ export class UserController {
       return this.sunbirdProvider.getUserByAuth(request);
     } else if (process.env.ADAPTER === "esamwad") {
       return this.eSamwadProvider.getUserByAuth(request);
+    } else if (process.env.ADAPTER === Adapter.HASURA) {
+      return this.fusionAuthProvider.getUserByAuth(request);
     }
   }
 
