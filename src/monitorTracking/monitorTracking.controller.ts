@@ -86,7 +86,7 @@ export class MonitorTrackingController {
   @ApiForbiddenResponse({ description: "Forbidden" })
   @ApiQuery({ name: "limit", required: false })
   @ApiQuery({ name: "monitorTrackingId", required: false })
-  @ApiQuery({ name: "monitorId", required: false })
+  @ApiQuery({ name: "monitorId", required: true })
   @ApiQuery({ name: "schoolId", required: false })
   @ApiQuery({ name: "groupId", required: false })
   @ApiQuery({ name: "scheduleVisitDate", required: false })
