@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Put,
-  Patch,
   Param,
   Body,
   UseInterceptors,
@@ -33,14 +32,21 @@ import {
   EsamwadSchoolToken,
 } from "src/adapters/esamwad/school.adapter";
 import { IServicelocator } from "src/adapters/schoolservicelocator";
+import {
+  HpSamarthSchoolService,
+  HpSamarthSchoolToken,
+} from "../adapters/hasura/school.adapter";
+import { Adapter } from "../global.status.enum";
 @ApiTags("School")
 @Controller("school")
 export class SchoolController {
   constructor(
     private service: SchoolService,
     private esamwadService: EsamwadSchoolService,
+    private hpSamarthService: HpSamarthSchoolService,
     @Inject(EsamwadSchoolToken) private eSamwadProvider: IServicelocator,
-    @Inject(SunbirdSchoolToken) private sunbirdProvider: IServicelocator
+    @Inject(SunbirdSchoolToken) private sunbirdProvider: IServicelocator,
+    @Inject(HpSamarthSchoolToken) private hpSamarthProvider: IServicelocator
   ) {}
 
   @Get("/:id")
@@ -52,6 +58,9 @@ export class SchoolController {
     strategy: "excludeAll",
   })
   public async getSchool(@Param("id") id: string, @Req() request: Request) {
+    if (process.env.ADAPTER === Adapter.HASURA) {
+      return this.hpSamarthService.getSchool(id);
+    }
     return this.service.getSchool(id, request);
   }
 
@@ -97,6 +106,8 @@ export class SchoolController {
       return this.sunbirdProvider.searchSchool(request, schoolSearchDto);
     } else if (process.env.ADAPTER === "esamwad") {
       return this.eSamwadProvider.searchSchool(request, schoolSearchDto);
+    } else if (process.env.ADAPTER === Adapter.HASURA) {
+      return this.hpSamarthProvider.searchSchool(request, schoolSearchDto);
     }
   }
 }
