@@ -1,4 +1,3 @@
-import { StudentInterface } from "./interfaces/student.interface";
 import {
   StudentService,
   SunbirdStudentToken,
@@ -24,7 +23,6 @@ import {
   Post,
   Body,
   Put,
-  Patch,
   Param,
   UseInterceptors,
   ClassSerializerInterceptor,
@@ -38,15 +36,22 @@ import {
   EsamwadStudentToken,
 } from "src/adapters/esamwad/student.adapter";
 import { IServicelocator } from "src/adapters/studentservicelocator";
+import { Adapter } from "../global.status.enum";
+import {
+  HpSamarthStudentService,
+  HpSamarthStudentToken,
+} from "../adapters/hasura/student.adapter";
 @ApiTags("Student")
 @Controller("student")
 export class StudentController {
   constructor(
     private service: StudentService,
     private esamwadService: EsamwadStudentService,
+    private hpSamarthService: HpSamarthStudentService,
     @Inject(CACHE_MANAGER) private cacheManager,
     @Inject(EsamwadStudentToken) private eSamwadProvider: IServicelocator,
-    @Inject(SunbirdStudentToken) private sunbirdProvider: IServicelocator
+    @Inject(SunbirdStudentToken) private sunbirdProvider: IServicelocator,
+    @Inject(HpSamarthStudentToken) private hpSamarthProvider: IServicelocator
   ) {}
 
   @Get("/:id")
@@ -62,6 +67,8 @@ export class StudentController {
       return this.sunbirdProvider.getStudent(studentId, request);
     } else if (process.env.ADAPTER === "esamwad") {
       return this.eSamwadProvider.getStudent(studentId, request);
+    } else if (process.env.ADAPTER === Adapter.HASURA) {
+      return this.hpSamarthProvider.getStudent(studentId, request);
     }
   }
 
@@ -108,6 +115,8 @@ export class StudentController {
       return this.sunbirdProvider.searchStudent(request, studentSearchDto);
     } else if (process.env.ADAPTER === "esamwad") {
       return this.eSamwadProvider.searchStudent(request, studentSearchDto);
+    } else if (process.env.ADAPTER === Adapter.HASURA) {
+      return this.hpSamarthProvider.searchStudent(request, studentSearchDto);
     }
   }
 }
