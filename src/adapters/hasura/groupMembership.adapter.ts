@@ -1,30 +1,20 @@
-import { Injectable, HttpException } from "@nestjs/common";
-import { GroupInterface } from "../../group/interfaces/group.interface";
-import { HttpService } from "@nestjs/axios";
-import { AxiosResponse } from "axios";
-import { first, map, Observable } from "rxjs";
-import { response } from "express";
+import { Injectable } from "@nestjs/common";
 import { SuccessResponse } from "src/success-response";
-const resolvePath = require("object-resolve-path");
-import { GroupDto } from "src/group/dto/group.dto";
-import { ErrorResponse } from "src/error-response";
-import { GroupSearchDto } from "src/group/dto/group-search.dto";
-import { IServicelocatorgroup } from "../groupservicelocator";
-import { UserDto } from "src/user/dto/user.dto";
-import { StudentDto } from "src/student/dto/student.dto";
-import { GroupMembershipDto } from "src/groupMembership/dto/groupMembership.dto";
-import { GroupMembershipSearchDto } from "src/groupMembership/dto/groupMembership-search.dto";
+import { v4 as uuid } from "uuid";
+import { AppService } from "../../app.service";
+import { GroupMembershipDto } from "../../groupMembership/dto/groupMembership.dto";
+import { ROLE } from "../../groupMembership/constants.enum";
+import { GroupMembershipSearchDto } from "../../groupMembership/dto/groupMembership-search.dto";
 
 @Injectable()
 export class GroupMembershipService {
-  constructor(private httpService: HttpService) {}
-
-  url = `${process.env.BASEAPIURL}`;
+  constructor(private appService: AppService) {}
 
   public async getGroupMembership(groupMembershipId: any, request: any) {
-    var axios = require("axios");
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const axios = require("axios");
 
-    var data = {
+    const data = {
       query: `query GetGroupMembership($groupmembershipId:uuid!) {
         groupmembership_by_pk(groupmembershipId: $groupmembershipId) {
             created_at
@@ -43,7 +33,7 @@ export class GroupMembershipService {
       },
     };
 
-    var config = {
+    const config = {
       method: "post",
       url: process.env.REGISTRYHASURA,
       headers: {
@@ -55,7 +45,7 @@ export class GroupMembershipService {
 
     const response = await axios(config);
 
-    let result = new GroupMembershipDto(
+    const result = new GroupMembershipDto(
       response?.data?.data?.groupmembership_by_pk
     );
 
@@ -70,7 +60,8 @@ export class GroupMembershipService {
     request: any,
     groupMembership: GroupMembershipDto
   ) {
-    var axios = require("axios");
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const axios = require("axios");
 
     let query = "";
     Object.keys(groupMembership).forEach((e) => {
@@ -83,7 +74,7 @@ export class GroupMembershipService {
       }
     });
 
-    var data = {
+    const data = {
       query: `mutation CreateGroupMembership {
         insert_groupmembership_one(object: {${query}}) {
          groupMembershipId
@@ -93,7 +84,7 @@ export class GroupMembershipService {
       variables: {},
     };
 
-    var config = {
+    const config = {
       method: "post",
       url: process.env.REGISTRYHASURA,
       headers: {
@@ -119,7 +110,8 @@ export class GroupMembershipService {
     request: any,
     groupMembershipDto: GroupMembershipDto
   ) {
-    var axios = require("axios");
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const axios = require("axios");
 
     let query = "";
     Object.keys(groupMembershipDto).forEach((e) => {
@@ -132,7 +124,7 @@ export class GroupMembershipService {
       }
     });
 
-    var data = {
+    const data = {
       query: `mutation UpdateGroupMembership($groupMembershipId:uuid) {
           update_groupmembership(where: { groupMembershipId: {_eq: $ groupMembershipId}}, _set: {${query}}) {
           affected_rows
@@ -143,7 +135,7 @@ export class GroupMembershipService {
       },
     };
 
-    var config = {
+    const config = {
       method: "post",
       url: process.env.REGISTRYHASURA,
       headers: {
@@ -166,10 +158,9 @@ export class GroupMembershipService {
 
   public async searchGroup(
     request: any,
-    groupMembershipSearchDto: GroupMembershipSearchDto
+    groupMembershipSearchDto: GroupMembershipSearchDto,
+    populateMapping = true
   ) {
-    var axios = require("axios");
-
     let offset = 0;
     if (groupMembershipSearchDto.page > 1) {
       offset =
@@ -177,7 +168,7 @@ export class GroupMembershipService {
         (groupMembershipSearchDto.page - 1);
     }
 
-    let filters = groupMembershipSearchDto.filters;
+    const filters = groupMembershipSearchDto.filters;
 
     Object.keys(groupMembershipSearchDto.filters).forEach((item) => {
       Object.keys(groupMembershipSearchDto.filters[item]).forEach((e) => {
@@ -187,7 +178,7 @@ export class GroupMembershipService {
         }
       });
     });
-    var data = {
+    const data = {
       query: `query SearchGroupMembership($filters:groupmembership_bool_exp,$limit:Int, $offset:Int) {
            groupmembership(where:$filters, limit: $limit, offset: $offset,) {
             created_at
@@ -207,26 +198,105 @@ export class GroupMembershipService {
         filters: groupMembershipSearchDto.filters,
       },
     };
-    var config = {
-      method: "post",
-      url: process.env.REGISTRYHASURA,
-      headers: {
-        "x-hasura-admin-secret": process.env.REGISTRYHASURAADMINSECRET,
-        "Content-Type": "application/json",
-      },
-      data: data,
-    };
 
-    const response = await axios(config);
-
-    let result = response.data.data.groupmembership.map(
-      (item: any) => new GroupMembershipDto(item)
-    );
+    let result: Array<GroupMembershipDto>;
+    const response = await this.appService.hasuraGraphQLCall(data);
+    if (response?.data?.data?.groupmembership?.length) {
+      result = response.data.data.groupmembership.map(
+        (item: any) => new GroupMembershipDto(item)
+      );
+    } else if (populateMapping && filters?.groupId) {
+      await this.__populate_group_memberships(filters.groupId["_eq"]);
+      return this.searchGroup(request, groupMembershipSearchDto, false);
+    }
 
     return new SuccessResponse({
       statusCode: 200,
       message: "Ok.",
       data: result,
     });
+  }
+
+  /**
+   * This function populates group membership for students uploaded by PT team
+   * for spot assessment & bind them with groupId
+   * @param groupId
+   * @private
+   */
+  private async __populate_group_memberships(groupId) {
+    let result: Array<object>;
+    const data = {
+      query: `
+        query {
+          monitortracking(limit: 1, where: {groupId: {_eq: "${groupId}"}}) {
+            scheduleVisitDate
+            schoolId
+            group {
+              gradeLevel
+            }
+          }
+        }`,
+      variables: {},
+    };
+
+    // We will find all the teams & school evaluations this monitor belongs to
+    const monitorTrackingResult = await this.appService.hasuraGraphQLCall(data);
+    if ((result = monitorTrackingResult?.data?.data?.monitortracking)) {
+      const schoolId = result[0]["schoolId"];
+      const evaluationDate = result[0]["scheduleVisitDate"];
+      const groupMembershipRecords: Array<GroupMembershipDto> = [];
+      const grade = result[0]["group"]["gradeLevel"];
+      const querySaClassStudents = {
+        query: `
+          query ($schoolId: Int!, $class: Int!) {
+            sa_class_students(where: {school_id: {_eq: $schoolId}, class: {_eq: $class}, evaluation_date: {_eq: "${evaluationDate}"}}) {
+              student_id
+            }
+          }`,
+        variables: {
+          schoolId: schoolId,
+          class: grade,
+        },
+      };
+      const studentsMapping = await this.appService.hasuraGraphQLCall(
+        querySaClassStudents
+      );
+      studentsMapping?.data?.data?.sa_class_students.forEach(
+        (studentMapping) => {
+          groupMembershipRecords.push({
+            groupId: groupId,
+            role: ROLE.STUDENT,
+            schoolId: schoolId,
+            userId: studentMapping["student_id"],
+            groupMembershipId: uuid(),
+          });
+        }
+      );
+
+      // prepare mutation strings for `groupmembership`
+      let groupMembershipMutation = "[";
+      groupMembershipRecords.forEach((item: GroupMembershipDto) => {
+        groupMembershipMutation += "{";
+        Object.keys(item).forEach((e) => {
+          if (item[e] && item[e] != "") {
+            groupMembershipMutation += `${e}: "${item[e]}", `;
+          }
+        });
+        groupMembershipMutation += "},";
+      });
+      groupMembershipMutation += "]";
+      const data = {
+        query: `
+        mutation {
+          insert_groupmembership(objects: ${groupMembershipMutation}) {
+            returning {
+              groupId
+            }
+          }
+        }`,
+        variables: {},
+      };
+      await this.appService.hasuraGraphQLCall(data);
+    }
   }
 }

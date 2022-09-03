@@ -3,6 +3,7 @@ import { HttpModule } from "@nestjs/axios";
 
 import { GroupMembershipController } from "./groupMembership.controller";
 import { GroupMembershipService } from "src/adapters/hasura/groupMembership.adapter";
+import { AppService } from "../app.service";
 const ttl = process.env.TTL as never;
 @Module({
   imports: [
@@ -12,6 +13,6 @@ const ttl = process.env.TTL as never;
     }),
   ],
   controllers: [GroupMembershipController],
-  providers: [GroupMembershipService],
+  providers: [GroupMembershipService, AppService],
 })
 export class GroupMembershipModule {}

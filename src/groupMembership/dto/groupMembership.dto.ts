@@ -1,4 +1,4 @@
-import { Exclude, Expose } from "class-transformer";
+import { Expose } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class GroupMembershipDto {
@@ -22,7 +22,7 @@ export class GroupMembershipDto {
   role: string;
 
   constructor(obj: any) {
-    this.groupMembershipId = `${obj.osid}`;
+    this.groupMembershipId = `${obj.groupMembershipId}`;
     this.groupId = `${obj.groupId}`;
     this.schoolId = `${obj.schoolId}`;
     this.userId = `${obj.userId}`;

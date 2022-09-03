@@ -8,8 +8,6 @@ import { VisitStatus } from "../../mentorTracking/dto/visitStatus.enum";
 import { GroupDto } from "../../group/dto/group.dto";
 import { GRADE_LEVEL, STATUS, TYPE } from "../../group/constants.enum";
 import { v4 as uuid } from "uuid";
-import { doc } from "prettier";
-import group = doc.builders.group;
 
 @Injectable()
 export class MonitorTrackingService {
@@ -17,6 +15,7 @@ export class MonitorTrackingService {
   constructor(private appService: AppService) {}
 
   public async getMonitorTracking(monitorId: string, request: any) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const axios = require("axios");
 
     const data = {
@@ -63,6 +62,7 @@ export class MonitorTrackingService {
     request: any,
     monitorTrackingDto: MonitorTrackingDto
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const axios = require("axios");
 
     let newDataObject = "";
@@ -104,6 +104,7 @@ export class MonitorTrackingService {
     request: any,
     monitorTrackingDto: MonitorTrackingDto
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const axios = require("axios");
 
     let newDataObject = "";
@@ -343,7 +344,8 @@ export class MonitorTrackingService {
           // iterate over each school evaluation
           schoolEvaluations.forEach((schoolEvaluation) => {
             const schoolId = schoolEvaluation["school_id"];
-            const schoolGroups = MonitorTrackingService.__get_group_records(schoolId);
+            const schoolGroups =
+              MonitorTrackingService.__get_group_records(schoolId);
             groupRecords = groupRecords.concat(schoolGroups);
             // iterate over each monitor we are going to populate mapping for all monitors of the team
             evaluators.forEach((evaluator: object) => {

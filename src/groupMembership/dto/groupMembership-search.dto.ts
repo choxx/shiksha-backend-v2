@@ -18,7 +18,9 @@ export class GroupMembershipSearchDto {
     description: "Filters",
   })
   @ApiPropertyOptional()
-  filters: object;
+  filters: {
+    groupId: object;
+  };
 
   constructor(partial: Partial<GroupMembershipSearchDto>) {
     Object.assign(this, partial);
