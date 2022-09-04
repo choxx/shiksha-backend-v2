@@ -1,17 +1,10 @@
-import { HttpException, Injectable } from "@nestjs/common";
-import { HttpService } from "@nestjs/axios";
-import { AxiosResponse } from "axios";
-import { catchError, map } from "rxjs";
+import { Injectable } from "@nestjs/common";
 import { SuccessResponse } from "src/success-response";
 import { TrackAssessmentDto } from "src/trackAssessment/dto/trackassessment.dto";
-import { ErrorResponse } from "src/error-response";
 import { Status } from "../../trackAssessment/enums/statuses.enum";
 
 @Injectable()
 export class TrackAssessmentService {
-  constructor(private httpService: HttpService) {}
-  assessmentURL = `${process.env.BASEAPIURL}/Trackassessment`;
-  assessmentsetURL = `${process.env.BASEAPIURL}/Assessmentset`;
   url = process.env.DIKSHADEVBASEAPIURL;
   public async getAssessment(assessmentId: any, request: any) {
     var axios = require("axios");
@@ -261,7 +254,7 @@ export class TrackAssessmentService {
 
     const response = await axios(config);
 
-    let result = response.data.data.trackassessment.map(
+    const result = response?.data?.data?.trackassessment.map(
       (item: any) => new TrackAssessmentDto(item)
     );
 

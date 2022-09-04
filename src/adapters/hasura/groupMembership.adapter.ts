@@ -3,7 +3,7 @@ import { SuccessResponse } from "src/success-response";
 import { v4 as uuid } from "uuid";
 import { AppService } from "../../app.service";
 import { GroupMembershipDto } from "../../groupMembership/dto/groupMembership.dto";
-import { ROLE } from "../../groupMembership/constants.enum";
+import { ROLE, STATUS } from "../../groupMembership/constants.enum";
 import { GroupMembershipSearchDto } from "../../groupMembership/dto/groupMembership-search.dto";
 
 @Injectable()
@@ -110,6 +110,7 @@ export class GroupMembershipService {
     request: any,
     groupMembershipDto: GroupMembershipDto
   ) {
+    console.log(groupMembershipDto);
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const axios = require("axios");
 
@@ -190,6 +191,7 @@ export class GroupMembershipService {
             updated_at
             updated_by
             userId
+            status
             }
           }`,
       variables: {
@@ -241,7 +243,9 @@ export class GroupMembershipService {
 
     // We will find all the teams & school evaluations this monitor belongs to
     const monitorTrackingResult = await this.appService.hasuraGraphQLCall(data);
-    if ((result = monitorTrackingResult?.data?.data?.monitortracking)) {
+    if (monitorTrackingResult?.data?.data?.monitortracking?.length) {
+      result = monitorTrackingResult?.data?.data?.monitortracking;
+      console.log(result);
       const schoolId = result[0]["schoolId"];
       const evaluationDate = result[0]["scheduleVisitDate"];
       const groupMembershipRecords: Array<GroupMembershipDto> = [];
@@ -264,6 +268,7 @@ export class GroupMembershipService {
       studentsMapping?.data?.data?.sa_class_students.forEach(
         (studentMapping) => {
           groupMembershipRecords.push({
+            status: STATUS.NONE,
             groupId: groupId,
             role: ROLE.STUDENT,
             schoolId: schoolId,
