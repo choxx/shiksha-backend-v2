@@ -316,7 +316,7 @@ export class MonitorTrackingService {
                 team {
                   id
                   name
-                  school_evaluations(where: {evaluation_date: {_gt: "now()"}, evaluation_status: {_eq: false}, is_monitor_tracking_populated: {_eq: false}}) {
+                  school_evaluations(where: {evaluation_status: {_eq: false}, is_monitor_tracking_populated: {_eq: false}}) {
                     id
                     school_id
                     evaluation_date
