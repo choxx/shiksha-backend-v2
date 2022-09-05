@@ -2,10 +2,17 @@ import { Injectable } from "@nestjs/common";
 import { SuccessResponse } from "src/success-response";
 import { TrackAssessmentDto } from "src/trackAssessment/dto/trackassessment.dto";
 import { Status } from "../../trackAssessment/enums/statuses.enum";
+import { GROUP_STATUS } from "../../group/constants.enum";
+import { AppService } from "../../app.service";
+import {
+  ROLE,
+  STATUS as GROUP_MEMBERSHIP_STATUS,
+} from "../../groupMembership/constants.enum";
 
 @Injectable()
 export class TrackAssessmentService {
   url = process.env.DIKSHADEVBASEAPIURL;
+  constructor(private appService: AppService) {}
   public async getAssessment(assessmentId: any, request: any) {
     var axios = require("axios");
     try {
@@ -138,7 +145,7 @@ export class TrackAssessmentService {
       }
 
       const data = {
-        query: `mutation CreateTrackAssessment($filter: String, $score: String, $totalScore:String, $source: String, $questions: String, $studentId: String, $teacherId: String, $type: String, $answersheet: String,$groupId:String, $subject:String, $status: String) {
+        query: `mutation CreateTrackAssessment($filter: String, $score: String, $totalScore:String, $source: String, $questions: String, $studentId: String, $teacherId: String, $type: String, $answersheet: String,$groupId:uuid, $subject:String, $status: String) {
           insert_trackassessment_one(object:{filter: $filter, score: $score, totalScore:$totalScore, source: $source, questions: $questions, studentId: $studentId, teacherId: $teacherId, type: $type, answersheet: $answersheet,groupId:$groupId,subject:$subject, status: $status}) {
             trackAssessmentId
           }
@@ -146,17 +153,41 @@ export class TrackAssessmentService {
         variables: variables,
       };
 
-      const config = {
-        method: "post",
-        url: process.env.REGISTRYHASURA,
-        headers: {
-          "x-hasura-admin-secret": process.env.REGISTRYHASURAADMINSECRET,
-          "Content-Type": "application/json",
-        },
-        data: data,
-      };
+      const response = await this.appService.hasuraGraphQLCall(data); // creating assessment record in table
 
-      const response = await axios(config);
+      // we'll update the group status to VISITED/COMPLETED because one of the mentor has visited & conducted assessment
+      let groupStatus = GROUP_STATUS.VISITED;
+      const groupMembershipPendingQuery = {
+        query: `query {
+          groupmembership_aggregate(where: {groupId: {_eq: "${assessmentDto.groupId}"}, role: {_eq: "${ROLE.STUDENT}"}, status: {_eq: "${GROUP_MEMBERSHIP_STATUS.NONE}"}}) {
+            aggregate {
+              count
+            }
+          }
+        }`,
+        variables: {},
+      };
+      const groupMembershipPending = await this.appService.hasuraGraphQLCall(
+        groupMembershipPendingQuery
+      );
+      if (
+        groupMembershipPending?.data?.groupmembership_aggregate?.aggregate
+          ?.count === 0
+      ) {
+        // if the count is 0, that means all student's assessment has been done
+        groupStatus = GROUP_STATUS.COMPLETED;
+      }
+
+      const groupUpdateMutationQuery = {
+        query: `mutation {
+          update_group_by_pk(pk_columns: {groupId: "${assessmentDto.groupId}"}, _set: {status: "${groupStatus}"}) {
+            groupId
+            status
+          }
+        }`,
+        variables: {},
+      };
+      await this.appService.hasuraGraphQLCall(groupUpdateMutationQuery);
 
       return new SuccessResponse({
         statusCode: 200,

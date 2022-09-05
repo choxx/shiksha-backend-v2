@@ -6,7 +6,7 @@ import { AxiosResponse } from "axios";
 import { AppService } from "../../app.service";
 import { VisitStatus } from "../../mentorTracking/dto/visitStatus.enum";
 import { GroupDto } from "../../group/dto/group.dto";
-import { GRADE_LEVEL, STATUS, TYPE } from "../../group/constants.enum";
+import { GRADE_LEVEL, GROUP_STATUS, TYPE } from "../../group/constants.enum";
 import { v4 as uuid } from "uuid";
 
 @Injectable()
@@ -252,7 +252,7 @@ export class MonitorTrackingService {
       option: null,
       schoolId: schoolId,
       section: null,
-      status: STATUS.PENDING,
+      status: GROUP_STATUS.PENDING,
       teacherId: null,
       type: TYPE.CLASS,
       updatedAt: null,
@@ -271,7 +271,7 @@ export class MonitorTrackingService {
       option: null,
       schoolId: schoolId,
       section: null,
-      status: STATUS.PENDING,
+      status: GROUP_STATUS.PENDING,
       teacherId: null,
       type: TYPE.CLASS,
       updatedAt: null,
@@ -290,7 +290,7 @@ export class MonitorTrackingService {
       option: null,
       schoolId: schoolId,
       section: null,
-      status: STATUS.PENDING,
+      status: GROUP_STATUS.PENDING,
       teacherId: null,
       type: TYPE.CLASS,
       updatedAt: null,

@@ -13,18 +13,15 @@ export class HpSamarthSchoolService implements IServicelocator {
 
   public async getSchool(schoolId: string) {
     const data = {
-      query: `query ($schoolId: Int) {
-        school(where: {id: {_eq:$schoolId }}) {
+      query: `query {
+        school_by_pk(id: "${schoolId}") {
           id
-          udise
           name
-          type
-          session
-          location_id
-          enroll_count
           is_active
           latitude
+          location_id
           longitude
+          udise
           location {
             id
             district
@@ -32,17 +29,18 @@ export class HpSamarthSchoolService implements IServicelocator {
             cluster
           }
         }
-      }`,
-      variables: { schoolId: schoolId },
+      }
+      `,
+      variables: {},
     };
 
     const response: AxiosResponse = await this.appService.hasuraGraphQLCall(
       data
     );
-    console.log(response.data);
-    const result = response?.data?.data?.school.map(
-      (item: any) => new HpSamarthSchoolDto(item)
-    );
+    let result = response?.data?.data?.school_by_pk;
+    if (result) {
+      result = new HpSamarthSchoolDto(result);
+    }
 
     return new SuccessResponse({
       statusCode: 200,
