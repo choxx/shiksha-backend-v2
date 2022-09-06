@@ -1,4 +1,5 @@
 import { ConfigService } from "../adapters/sunbirdrc/config.adapter";
+import { ConfigService as HasuraConfigService } from "../adapters/hasura/config.adapter";
 import {
   ApiTags,
   ApiBody,
@@ -19,16 +20,20 @@ import {
   SerializeOptions,
   Req,
   Query,
-  CacheInterceptor,
+  CacheInterceptor, MethodNotAllowedException
 } from "@nestjs/common";
 import { ConfigSearchDto } from "./dto/config-search.dto";
 import { Request } from "@nestjs/common";
 import { ConfigDto } from "./dto/config.dto";
+import { Adapter } from "../global.status.enum";
 
 @ApiTags("Config")
 @Controller("config")
 export class ConfigController {
-  constructor(private service: ConfigService) {}
+  constructor(
+    private service: ConfigService,
+    private readonly hasuraService: HasuraConfigService
+  ) {}
 
   @Get(":module/all")
   @ApiBasicAuth("access-token")
@@ -39,6 +44,9 @@ export class ConfigController {
     strategy: "excludeAll",
   })
   public async getConfig(@Req() request: Request) {
+    if (process.env.ADAPTER === Adapter.HASURA) {
+      return this.hasuraService.getConfig(request);
+    }
     return this.service.getConfig(request);
   }
 
@@ -52,6 +60,9 @@ export class ConfigController {
     @Req() request: Request,
     @Body() configDto: ConfigDto
   ) {
+    if (process.env.ADAPTER === Adapter.HASURA) {
+      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    }
     return this.service.createConfig(request, configDto);
   }
 
@@ -64,6 +75,9 @@ export class ConfigController {
     @Req() request: Request,
     @Body() configDto: [Object]
   ) {
+    if (process.env.ADAPTER === Adapter.HASURA) {
+      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    }
     return this.service.createModuleConfigs(request, configDto);
   }
 }
