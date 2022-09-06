@@ -24,11 +24,16 @@ import {
 import { Request } from "@nestjs/common";
 import { RoleDto } from "./dto/role.dto";
 import { RoleService } from "src/adapters/sunbirdrc/role.adapter";
+import { Adapter } from "../global.status.enum";
+import { HpSamarthRoleService } from "../adapters/hasura/role.adapter";
 
 @ApiTags("Role")
 @Controller("role")
 export class RoleController {
-  constructor(private readonly service: RoleService) {}
+  constructor(
+    private readonly service: RoleService,
+    private readonly hpSamarthRoleService: HpSamarthRoleService
+  ) {}
 
   @Get("/:id")
   @UseInterceptors(ClassSerializerInterceptor, CacheInterceptor)
@@ -86,6 +91,16 @@ export class RoleController {
     @Query("status") status: string,
     @Req() request: Request
   ) {
+    if (process.env.ADAPTER === Adapter.HASURA) {
+      return this.hpSamarthRoleService.searchRole(
+        limit,
+        roleId,
+        title,
+        parentId,
+        status,
+        request
+      );
+    }
     return this.service.searchRole(
       limit,
       roleId,
