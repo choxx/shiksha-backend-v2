@@ -78,7 +78,7 @@ export class TrackAssessmentService {
         // let's set it as "COMPLETED" by default
         assessmentDto.status = Status.COMPLETED;
       }
-      if (assessmentDto.status == Status.COMPLETED) {
+      if (assessmentDto.status !== Status.ABSENT) {
         const answer = JSON.stringify(assessmentDto.answersheet);
         const jsonObj = JSON.parse(answer);
         const params = JSON.parse(jsonObj);
