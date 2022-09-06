@@ -2,7 +2,7 @@ import { Expose } from "class-transformer";
 import { IsNumber } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
-export class HpSamarthSchoolDto {
+export class HasuraSchoolDto {
   @Expose()
   schoolId: string;
 

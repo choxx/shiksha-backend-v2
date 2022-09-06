@@ -7,7 +7,8 @@ import {
   CacheInterceptor,
   CACHE_MANAGER,
   Inject,
-  Request, MethodNotAllowedException
+  Request,
+  MethodNotAllowedException,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -38,8 +39,8 @@ import {
 import { IServicelocator } from "src/adapters/studentservicelocator";
 import { Adapter } from "../global.status.enum";
 import {
-  HpSamarthStudentService,
-  HpSamarthStudentToken,
+  StudentService as HasuraStudentService,
+  HasuraStudentToken,
 } from "../adapters/hasura/student.adapter";
 @ApiTags("Student")
 @Controller("student")
@@ -47,11 +48,11 @@ export class StudentController {
   constructor(
     private service: StudentService,
     private esamwadService: EsamwadStudentService,
-    private hpSamarthService: HpSamarthStudentService,
+    private hasuraService: HasuraStudentService,
     @Inject(CACHE_MANAGER) private cacheManager,
     @Inject(EsamwadStudentToken) private eSamwadProvider: IServicelocator,
     @Inject(SunbirdStudentToken) private sunbirdProvider: IServicelocator,
-    @Inject(HpSamarthStudentToken) private hpSamarthProvider: IServicelocator
+    @Inject(HasuraStudentToken) private hasuraProvider: IServicelocator
   ) {}
 
   @Get("/:id")
@@ -68,7 +69,7 @@ export class StudentController {
     } else if (process.env.ADAPTER === "esamwad") {
       return this.eSamwadProvider.getStudent(studentId, request);
     } else if (process.env.ADAPTER === Adapter.HASURA) {
-      return this.hpSamarthProvider.getStudent(studentId, request);
+      return this.hasuraProvider.getStudent(studentId, request);
     }
   }
 
@@ -122,7 +123,7 @@ export class StudentController {
     } else if (process.env.ADAPTER === "esamwad") {
       return this.eSamwadProvider.searchStudent(request, studentSearchDto);
     } else if (process.env.ADAPTER === Adapter.HASURA) {
-      return this.hpSamarthProvider.searchStudent(request, studentSearchDto);
+      return this.hasuraProvider.searchStudent(request, studentSearchDto);
     }
   }
 }

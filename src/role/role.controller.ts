@@ -10,7 +10,8 @@ import {
   SerializeOptions,
   Req,
   CacheInterceptor,
-  Query, MethodNotAllowedException
+  Query,
+  MethodNotAllowedException,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -25,14 +26,14 @@ import { Request } from "@nestjs/common";
 import { RoleDto } from "./dto/role.dto";
 import { RoleService } from "src/adapters/sunbirdrc/role.adapter";
 import { Adapter } from "../global.status.enum";
-import { HpSamarthRoleService } from "../adapters/hasura/role.adapter";
+import { RoleService as HasuraRoleService } from "../adapters/hasura/role.adapter";
 
 @ApiTags("Role")
 @Controller("role")
 export class RoleController {
   constructor(
     private readonly service: RoleService,
-    private readonly hpSamarthRoleService: HpSamarthRoleService
+    private readonly hasuraRoleService: HasuraRoleService
   ) {}
 
   @Get("/:id")
@@ -101,7 +102,7 @@ export class RoleController {
     @Req() request: Request
   ) {
     if (process.env.ADAPTER === Adapter.HASURA) {
-      return this.hpSamarthRoleService.searchRole(
+      return this.hasuraRoleService.searchRole(
         limit,
         roleId,
         title,

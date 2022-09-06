@@ -11,7 +11,8 @@ import {
   Req,
   Request,
   CacheInterceptor,
-  Inject, MethodNotAllowedException
+  Inject,
+  MethodNotAllowedException,
 } from "@nestjs/common";
 import {
   SchoolService,
@@ -33,8 +34,8 @@ import {
 } from "src/adapters/esamwad/school.adapter";
 import { IServicelocator } from "src/adapters/schoolservicelocator";
 import {
-  HpSamarthSchoolService,
-  HpSamarthSchoolToken,
+  SchoolService as HasuraSchoolService,
+  HasuraSchoolToken,
 } from "../adapters/hasura/school.adapter";
 import { Adapter } from "../global.status.enum";
 @ApiTags("School")
@@ -43,10 +44,10 @@ export class SchoolController {
   constructor(
     private service: SchoolService,
     private esamwadService: EsamwadSchoolService,
-    private hpSamarthService: HpSamarthSchoolService,
+    private hasuraService: HasuraSchoolService,
     @Inject(EsamwadSchoolToken) private eSamwadProvider: IServicelocator,
     @Inject(SunbirdSchoolToken) private sunbirdProvider: IServicelocator,
-    @Inject(HpSamarthSchoolToken) private hpSamarthProvider: IServicelocator
+    @Inject(HasuraSchoolToken) private hasuraProvider: IServicelocator
   ) {}
 
   @Get("/:id")
@@ -59,7 +60,7 @@ export class SchoolController {
   })
   public async getSchool(@Param("id") id: string, @Req() request: Request) {
     if (process.env.ADAPTER === Adapter.HASURA) {
-      return this.hpSamarthService.getSchool(id);
+      return this.hasuraService.getSchool(id);
     }
     return this.service.getSchool(id, request);
   }
@@ -113,7 +114,7 @@ export class SchoolController {
     } else if (process.env.ADAPTER === "esamwad") {
       return this.eSamwadProvider.searchSchool(request, schoolSearchDto);
     } else if (process.env.ADAPTER === Adapter.HASURA) {
-      return this.hpSamarthProvider.searchSchool(request, schoolSearchDto);
+      return this.hasuraProvider.searchSchool(request, schoolSearchDto);
     }
   }
 }

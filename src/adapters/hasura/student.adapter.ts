@@ -3,10 +3,10 @@ import { SuccessResponse } from "src/success-response";
 import { IServicelocator } from "../studentservicelocator";
 import { StudentSearchDto } from "src/student/dto/student-search.dto";
 import { AppService } from "../../app.service";
-import { HpSamarthStudentDto } from "../../student/dto/hasura-student.dto";
-export const HpSamarthStudentToken = "EsamwadStudent";
+import { HasuraStudentDto } from "../../student/dto/hasura-student.dto";
+export const HasuraStudentToken = "HasuraStudent";
 @Injectable()
-export class HpSamarthStudentService implements IServicelocator {
+export class StudentService implements IServicelocator {
   constructor(private appService: AppService) {}
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -63,7 +63,7 @@ export class HpSamarthStudentService implements IServicelocator {
     };
     const response = await this.appService.hasuraGraphQLCall(data);
     const result = response?.data?.data?.student.map(
-      (item: any) => new HpSamarthStudentDto(item)
+      (item: any) => new HasuraStudentDto(item)
     );
 
     return new SuccessResponse({
@@ -107,7 +107,7 @@ export class HpSamarthStudentService implements IServicelocator {
     const response = await this.appService.hasuraGraphQLCall(data);
 
     const responsedata = response.data.data.student.map(
-      (item: any) => new HpSamarthStudentDto(item)
+      (item: any) => new HasuraStudentDto(item)
     );
 
     return new SuccessResponse({

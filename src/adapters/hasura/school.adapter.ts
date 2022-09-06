@@ -3,12 +3,12 @@ import { SuccessResponse } from "src/success-response";
 import { IServicelocator } from "../schoolservicelocator";
 import { AxiosResponse } from "axios";
 import { AppService } from "../../app.service";
-import { HpSamarthSchoolDto } from "../../school/dto/hasura-school.dto";
+import { HasuraSchoolDto } from "../../school/dto/hasura-school.dto";
 
-export const HpSamarthSchoolToken = "HpSamarthSchool";
+export const HasuraSchoolToken = "HasuraSchool";
 
 @Injectable()
-export class HpSamarthSchoolService implements IServicelocator {
+export class SchoolService implements IServicelocator {
   constructor(private appService: AppService) {}
 
   public async getSchool(schoolId: string) {
@@ -39,7 +39,7 @@ export class HpSamarthSchoolService implements IServicelocator {
     );
     let result = response?.data?.data?.school_by_pk;
     if (result) {
-      result = new HpSamarthSchoolDto(result);
+      result = new HasuraSchoolDto(result);
     }
 
     return new SuccessResponse({

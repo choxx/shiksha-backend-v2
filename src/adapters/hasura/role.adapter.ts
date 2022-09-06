@@ -3,7 +3,7 @@ import { SuccessResponse } from "src/success-response";
 import { RoleDto } from "src/role/dto/role.dto";
 import { AppService } from "../../app.service";
 @Injectable()
-export class HpSamarthRoleService {
+export class RoleService {
   constructor(private appService: AppService) {}
 
   public async searchRole(

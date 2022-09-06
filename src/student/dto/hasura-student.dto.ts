@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Expose } from "class-transformer";
 
-export class HpSamarthStudentDto {
+export class HasuraStudentDto {
   @Expose()
   studentId: string;
 

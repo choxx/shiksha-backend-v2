@@ -10,8 +10,8 @@ import {
   EsamwadStudentToken,
 } from "src/adapters/esamwad/student.adapter";
 import {
-  HpSamarthStudentService,
-  HpSamarthStudentToken,
+  StudentService as HasuraStudentService,
+  HasuraStudentToken,
 } from "../adapters/hasura/student.adapter";
 import { AppService } from "../app.service";
 const ttl = process.env.TTL as never;
@@ -27,10 +27,10 @@ const ttl = process.env.TTL as never;
     AppService,
     StudentService,
     EsamwadStudentService,
-    HpSamarthStudentService,
+    HasuraStudentService,
     { provide: SunbirdStudentToken, useClass: StudentService },
     { provide: EsamwadStudentToken, useClass: EsamwadStudentService },
-    { provide: HpSamarthStudentToken, useClass: HpSamarthStudentService },
+    { provide: HasuraStudentToken, useClass: HasuraStudentService },
   ],
 })
 export class StudentModule {}
