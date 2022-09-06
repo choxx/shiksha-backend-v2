@@ -11,7 +11,7 @@ import {
   Req,
   CacheInterceptor,
   Inject,
-  Query,
+  Query, MethodNotAllowedException
 } from "@nestjs/common";
 import {
   SunbirdUserToken,
@@ -53,6 +53,9 @@ export class UserController {
     strategy: "excludeAll",
   })
   public async getUser(@Param("id") id: string, @Req() request: Request) {
+    if (process.env.ADAPTER === Adapter.HASURA) {
+      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    }
     return this.service.getUser(id, request);
   }
 
@@ -94,6 +97,9 @@ export class UserController {
     @Req() request: Request,
     @Body() userDto: UserDto
   ) {
+    if (process.env.ADAPTER === Adapter.HASURA) {
+      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    }
     return await this.service.updateUser(id, request, userDto);
   }
   @Post("/search")
@@ -109,6 +115,9 @@ export class UserController {
     @Req() request: Request,
     @Body() userSearchDto: UserSearchDto
   ) {
+    if (process.env.ADAPTER === Adapter.HASURA) {
+      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    }
     return await this.service.searchUser(request, userSearchDto);
   }
 
@@ -123,6 +132,9 @@ export class UserController {
     @Query("templateId") templateId: string,
     @Req() request: Request
   ) {
+    if (process.env.ADAPTER === Adapter.HASURA) {
+      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    }
     return await this.service.teacherSegment(schoolId, templateId, request);
   }
 }

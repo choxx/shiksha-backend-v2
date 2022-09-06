@@ -10,7 +10,7 @@ import {
   SerializeOptions,
   Req,
   CacheInterceptor,
-  Query,
+  Query, MethodNotAllowedException
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -43,6 +43,9 @@ export class RoleController {
     strategy: "excludeAll",
   })
   getRole(@Param("id") roleId: string, @Req() request: Request) {
+    if (process.env.ADAPTER === Adapter.HASURA) {
+      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    }
     return this.service.getRole(roleId, request);
   }
 
@@ -55,6 +58,9 @@ export class RoleController {
   @ApiForbiddenResponse({ description: "Forbidden" })
   @UseInterceptors(ClassSerializerInterceptor)
   public async creatRole(@Req() request: Request, @Body() roleDto: RoleDto) {
+    if (process.env.ADAPTER === Adapter.HASURA) {
+      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    }
     return this.service.createRole(request, roleDto);
   }
 
@@ -70,6 +76,9 @@ export class RoleController {
     @Req() request: Request,
     @Body() roleDto: RoleDto
   ) {
+    if (process.env.ADAPTER === Adapter.HASURA) {
+      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    }
     return await this.service.updateRole(roleId, request, roleDto);
   }
 

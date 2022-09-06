@@ -7,7 +7,7 @@ import {
   CacheInterceptor,
   CACHE_MANAGER,
   Inject,
-  Request,
+  Request, MethodNotAllowedException
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -82,6 +82,9 @@ export class StudentController {
     @Req() request: Request,
     @Body() studentDto: StudentDto
   ) {
+    if (process.env.ADAPTER === Adapter.HASURA) {
+      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    }
     return this.service.createStudent(request, studentDto);
   }
 
@@ -95,6 +98,9 @@ export class StudentController {
     @Req() request: Request,
     @Body() studentDto: StudentDto
   ) {
+    if (process.env.ADAPTER === Adapter.HASURA) {
+      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    }
     return await this.service.updateStudent(id, request, studentDto);
   }
 

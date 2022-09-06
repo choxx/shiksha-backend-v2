@@ -11,7 +11,7 @@ import {
   Req,
   Request,
   CacheInterceptor,
-  Inject,
+  Inject, MethodNotAllowedException
 } from "@nestjs/common";
 import {
   SchoolService,
@@ -74,6 +74,9 @@ export class SchoolController {
     @Req() request: Request,
     @Body() schoolDto: SchoolDto
   ) {
+    if (process.env.ADAPTER === Adapter.HASURA) {
+      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    }
     return this.service.createSchool(request, schoolDto);
   }
 
@@ -87,6 +90,9 @@ export class SchoolController {
     @Req() request: Request,
     @Body() schoolDto: SchoolDto
   ) {
+    if (process.env.ADAPTER === Adapter.HASURA) {
+      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    }
     return await this.service.updateSchool(id, request, schoolDto);
   }
   @Post("/search")
