@@ -10,6 +10,18 @@ export class SuccessResponse {
   @Expose()
   data: object;
 
+  @Expose()
+  total: number;
+
+  @Expose()
+  page: number;
+
+  @Expose()
+  limit: number;
+
+  @Expose()
+  pages: number;
+
   constructor(partial: Partial<SuccessResponse>) {
     Object.assign(this, partial);
   }

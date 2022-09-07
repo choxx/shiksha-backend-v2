@@ -13,7 +13,7 @@ export class StudentService implements IServicelocator {
   public async searchStudent(request: any, studentSearchDto: StudentSearchDto) {
     let offset = 0;
     const limit = request?.body?.limit ? request.body.limit : 10;
-    const page = request?.body?.page ? request.body.page : 10;
+    const page = request?.body?.page ? request.body.page : 1;
 
     if (page > 1) {
       offset = parseInt(limit) * (page - 1);
@@ -26,7 +26,7 @@ export class StudentService implements IServicelocator {
         searchString += `${e}:{_eq:"${request.body.filters[e]}"}`;
       }
     });
-    console.log(searchString);
+
     const data = {
       query: `query ($offset:Int, $limit:Int) {
         student(where: {${searchString}}, offset: $offset,limit: $limit) {
@@ -66,10 +66,17 @@ export class StudentService implements IServicelocator {
       (item: any) => new HasuraStudentDto(item)
     );
 
+    const total = response?.data?.data?.student_aggregate?.aggregate?.count
+      ? response.data.data.student_aggregate.aggregate.count
+      : 0;
     return new SuccessResponse({
       statusCode: 200,
       message: "ok.",
       data: result,
+      total: total,
+      page: page,
+      limit: parseInt(limit),
+      pages: Math.floor(total / limit + (total % limit == 0 ? 0 : 1)),
     });
   }
 
