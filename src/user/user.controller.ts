@@ -11,7 +11,8 @@ import {
   Req,
   CacheInterceptor,
   Inject,
-  Query, MethodNotAllowedException
+  Query,
+  MethodNotAllowedException,
 } from "@nestjs/common";
 import {
   SunbirdUserToken,
@@ -53,7 +54,7 @@ export class UserController {
     strategy: "excludeAll",
   })
   public async getUser(@Param("id") id: string, @Req() request: Request) {
-    if (process.env.ADAPTER === Adapter.HASURA) {
+    if (process.env.ADAPTERSOURCE === Adapter.HASURA) {
       throw new MethodNotAllowedException(); // not supported on Hasura Adapter
     }
     return this.service.getUser(id, request);
@@ -68,11 +69,11 @@ export class UserController {
     strategy: "excludeAll",
   })
   public async getUserByAuth(@Req() request: Request) {
-    if (process.env.ADAPTER === "sunbird") {
+    if (process.env.ADAPTERSOURCE === "sunbird") {
       return this.sunbirdProvider.getUserByAuth(request);
-    } else if (process.env.ADAPTER === "esamwad") {
+    } else if (process.env.ADAPTERSOURCE === "esamwad") {
       return this.eSamwadProvider.getUserByAuth(request);
-    } else if (process.env.ADAPTER === Adapter.HASURA) {
+    } else if (process.env.ADAPTERSOURCE === Adapter.HASURA) {
       return this.fusionAuthProvider.getUserByAuth(request);
     }
   }
@@ -97,7 +98,7 @@ export class UserController {
     @Req() request: Request,
     @Body() userDto: UserDto
   ) {
-    if (process.env.ADAPTER === Adapter.HASURA) {
+    if (process.env.ADAPTERSOURCE === Adapter.HASURA) {
       throw new MethodNotAllowedException(); // not supported on Hasura Adapter
     }
     return await this.service.updateUser(id, request, userDto);
@@ -115,7 +116,7 @@ export class UserController {
     @Req() request: Request,
     @Body() userSearchDto: UserSearchDto
   ) {
-    if (process.env.ADAPTER === Adapter.HASURA) {
+    if (process.env.ADAPTERSOURCE === Adapter.HASURA) {
       throw new MethodNotAllowedException(); // not supported on Hasura Adapter
     }
     return await this.service.searchUser(request, userSearchDto);
@@ -132,7 +133,7 @@ export class UserController {
     @Query("templateId") templateId: string,
     @Req() request: Request
   ) {
-    if (process.env.ADAPTER === Adapter.HASURA) {
+    if (process.env.ADAPTERSOURCE === Adapter.HASURA) {
       throw new MethodNotAllowedException(); // not supported on Hasura Adapter
     }
     return await this.service.teacherSegment(schoolId, templateId, request);

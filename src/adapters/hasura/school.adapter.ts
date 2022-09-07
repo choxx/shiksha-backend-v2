@@ -4,12 +4,23 @@ import { IServicelocator } from "../schoolservicelocator";
 import { AxiosResponse } from "axios";
 import { AppService } from "../../app.service";
 import { HasuraSchoolDto } from "../../school/dto/hasura-school.dto";
+import { SchoolDto } from "../../school/dto/school.dto";
 
 export const HasuraSchoolToken = "HasuraSchool";
 
 @Injectable()
 export class SchoolService implements IServicelocator {
   constructor(private appService: AppService) {}
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  createSchool(request: any, schoolDto: SchoolDto) {
+    throw new MethodNotAllowedException();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  updateSchool(id: string, request: any, schoolDto: SchoolDto) {
+    throw new MethodNotAllowedException();
+  }
 
   public async getSchool(schoolId: string) {
     const data = {

@@ -242,6 +242,7 @@ export class MonitorTrackingService {
     const groupRecords: Array<GroupDto> = [];
     // for Class I
     groupRecords.push({
+      parentId: null,
       createdAt: null,
       deactivationReason: null,
       gradeLevel: GRADE_LEVEL.CLASS_1,
@@ -261,6 +262,7 @@ export class MonitorTrackingService {
 
     // for Class II
     groupRecords.push({
+      parentId: null,
       createdAt: null,
       deactivationReason: null,
       gradeLevel: GRADE_LEVEL.CLASS_2,
@@ -280,6 +282,7 @@ export class MonitorTrackingService {
 
     // for Class III
     groupRecords.push({
+      parentId: null,
       createdAt: null,
       deactivationReason: null,
       gradeLevel: GRADE_LEVEL.CLASS_3,

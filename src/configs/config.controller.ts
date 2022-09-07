@@ -1,5 +1,4 @@
-import { ConfigService } from "../adapters/sunbirdrc/config.adapter";
-import { ConfigService as HasuraConfigService } from "../adapters/hasura/config.adapter";
+import { SunbirdConfigToken } from "../adapters/sunbirdrc/config.adapter";
 import {
   ApiTags,
   ApiBody,
@@ -13,26 +12,24 @@ import {
   Get,
   Post,
   Body,
-  Put,
-  Param,
   UseInterceptors,
   ClassSerializerInterceptor,
   SerializeOptions,
   Req,
-  Query,
-  CacheInterceptor, MethodNotAllowedException
+  Inject,
 } from "@nestjs/common";
-import { ConfigSearchDto } from "./dto/config-search.dto";
 import { Request } from "@nestjs/common";
 import { ConfigDto } from "./dto/config.dto";
+import { IServicelocator } from "src/adapters/configservicelocator";
+import { HasuraConfigToken } from "src/adapters/hasura/config.adapter";
 import { Adapter } from "../global.status.enum";
 
 @ApiTags("Config")
 @Controller("config")
 export class ConfigController {
   constructor(
-    private service: ConfigService,
-    private readonly hasuraService: HasuraConfigService
+    @Inject(HasuraConfigToken) private hasuraProvider: IServicelocator,
+    @Inject(SunbirdConfigToken) private sunbirdProvider: IServicelocator
   ) {}
 
   @Get(":module/all")
@@ -44,10 +41,11 @@ export class ConfigController {
     strategy: "excludeAll",
   })
   public async getConfig(@Req() request: Request) {
-    if (process.env.ADAPTER === Adapter.HASURA) {
-      return this.hasuraService.getConfig(request);
+    if (process.env.ADAPTERSOURCE === Adapter.HASURA) {
+      return this.hasuraProvider.getConfig(request);
+    } else if (process.env.ADAPTERSOURCE === "sunbird") {
+      return this.sunbirdProvider.getConfig(request);
     }
-    return this.service.getConfig(request);
   }
 
   @Post("")
@@ -60,10 +58,11 @@ export class ConfigController {
     @Req() request: Request,
     @Body() configDto: ConfigDto
   ) {
-    if (process.env.ADAPTER === Adapter.HASURA) {
-      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    if (process.env.ADAPTERSOURCE === Adapter.HASURA) {
+      return this.hasuraProvider.createConfig(request, configDto);
+    } else if (process.env.ADAPTERSOURCE === "sunbird") {
+      return this.sunbirdProvider.createConfig(request, configDto);
     }
-    return this.service.createConfig(request, configDto);
   }
 
   @Post(":multipleConfigs")
@@ -73,11 +72,13 @@ export class ConfigController {
   @UseInterceptors(ClassSerializerInterceptor)
   public async createModuleConfigs(
     @Req() request: Request,
+    // eslint-disable-next-line @typescript-eslint/ban-types
     @Body() configDto: [Object]
   ) {
-    if (process.env.ADAPTER === Adapter.HASURA) {
-      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    if (process.env.ADAPTERSOURCE === Adapter.HASURA) {
+      return this.hasuraProvider.createModuleConfigs(request, configDto);
+    } else if (process.env.ADAPTERSOURCE === "sunbird") {
+      return this.sunbirdProvider.createModuleConfigs(request, configDto);
     }
-    return this.service.createModuleConfigs(request, configDto);
   }
 }

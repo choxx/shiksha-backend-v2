@@ -15,8 +15,8 @@ export class GroupMembershipService {
     const axios = require("axios");
 
     const data = {
-      query: `query GetGroupMembership($groupmembershipId:uuid!) {
-        groupmembership_by_pk(groupmembershipId: $groupmembershipId) {
+      query: `query GetGroupMembership($groupMembershipId:uuid!) {
+        groupmembership_by_pk(groupMembershipId: $groupMembershipId) {
             created_at
             created_by
             groupId
@@ -105,7 +105,7 @@ export class GroupMembershipService {
     });
   }
 
-  public async updateGroup(
+  public async updateGroupMembership(
     groupMembershipId: string,
     request: any,
     groupMembershipDto: GroupMembershipDto
@@ -157,7 +157,7 @@ export class GroupMembershipService {
     });
   }
 
-  public async searchGroup(
+  public async searchGroupMembership(
     request: any,
     groupMembershipSearchDto: GroupMembershipSearchDto,
     populateMapping = true
@@ -183,13 +183,11 @@ export class GroupMembershipService {
       query: `query SearchGroupMembership($filters:groupmembership_bool_exp,$limit:Int, $offset:Int) {
            groupmembership(where:$filters, limit: $limit, offset: $offset,) {
             created_at
-            created_by
             groupId
             groupMembershipId
             schoolId
             role
             updated_at
-            updated_by
             userId
             status
             }
@@ -209,7 +207,11 @@ export class GroupMembershipService {
       );
     } else if (populateMapping && filters?.groupId) {
       await this.__populate_group_memberships(filters.groupId["_eq"]);
-      return this.searchGroup(request, groupMembershipSearchDto, false);
+      return this.searchGroupMembership(
+        request,
+        groupMembershipSearchDto,
+        false
+      );
     }
 
     return new SuccessResponse({
@@ -268,6 +270,8 @@ export class GroupMembershipService {
       studentsMapping?.data?.data?.sa_class_students.forEach(
         (studentMapping) => {
           groupMembershipRecords.push({
+            created_at: "",
+            updated_at: "",
             status: STATUS.NONE,
             groupId: groupId,
             role: ROLE.STUDENT,

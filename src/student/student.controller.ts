@@ -64,11 +64,11 @@ export class StudentController {
     strategy: "excludeAll",
   })
   getStudent(@Param("id") studentId: string, @Req() request: Request) {
-    if (process.env.ADAPTER === "sunbird") {
+    if (process.env.ADAPTERSOURCE === "sunbird") {
       return this.sunbirdProvider.getStudent(studentId, request);
-    } else if (process.env.ADAPTER === "esamwad") {
+    } else if (process.env.ADAPTERSOURCE === "esamwad") {
       return this.eSamwadProvider.getStudent(studentId, request);
-    } else if (process.env.ADAPTER === Adapter.HASURA) {
+    } else if (process.env.ADAPTERSOURCE === Adapter.HASURA) {
       return this.hasuraProvider.getStudent(studentId, request);
     }
   }
@@ -83,7 +83,7 @@ export class StudentController {
     @Req() request: Request,
     @Body() studentDto: StudentDto
   ) {
-    if (process.env.ADAPTER === Adapter.HASURA) {
+    if (process.env.ADAPTERSOURCE === Adapter.HASURA) {
       throw new MethodNotAllowedException(); // not supported on Hasura Adapter
     }
     return this.service.createStudent(request, studentDto);
@@ -99,7 +99,7 @@ export class StudentController {
     @Req() request: Request,
     @Body() studentDto: StudentDto
   ) {
-    if (process.env.ADAPTER === Adapter.HASURA) {
+    if (process.env.ADAPTERSOURCE === Adapter.HASURA) {
       throw new MethodNotAllowedException(); // not supported on Hasura Adapter
     }
     return await this.service.updateStudent(id, request, studentDto);
@@ -118,11 +118,11 @@ export class StudentController {
     @Req() request: Request,
     @Body() studentSearchDto: StudentSearchDto
   ) {
-    if (process.env.ADAPTER === "sunbird") {
+    if (process.env.ADAPTERSOURCE === "sunbird") {
       return this.sunbirdProvider.searchStudent(request, studentSearchDto);
-    } else if (process.env.ADAPTER === "esamwad") {
+    } else if (process.env.ADAPTERSOURCE === "esamwad") {
       return this.eSamwadProvider.searchStudent(request, studentSearchDto);
-    } else if (process.env.ADAPTER === Adapter.HASURA) {
+    } else if (process.env.ADAPTERSOURCE === Adapter.HASURA) {
       return this.hasuraProvider.searchStudent(request, studentSearchDto);
     }
   }

@@ -12,12 +12,8 @@ import {
   Request,
   CacheInterceptor,
   Inject,
-  MethodNotAllowedException,
 } from "@nestjs/common";
-import {
-  SchoolService,
-  SunbirdSchoolToken,
-} from "../adapters/sunbirdrc/school.adapter";
+import { SunbirdSchoolToken } from "../adapters/sunbirdrc/school.adapter";
 import { SchoolDto } from "./dto/school.dto";
 import {
   ApiTags,
@@ -28,23 +24,14 @@ import {
   ApiBasicAuth,
 } from "@nestjs/swagger";
 import { SchoolSearchDto } from "./dto/school-search.dto";
-import {
-  EsamwadSchoolService,
-  EsamwadSchoolToken,
-} from "src/adapters/esamwad/school.adapter";
+import { EsamwadSchoolToken } from "src/adapters/esamwad/school.adapter";
 import { IServicelocator } from "src/adapters/schoolservicelocator";
-import {
-  SchoolService as HasuraSchoolService,
-  HasuraSchoolToken,
-} from "../adapters/hasura/school.adapter";
+import { HasuraSchoolToken } from "../adapters/hasura/school.adapter";
 import { Adapter } from "../global.status.enum";
 @ApiTags("School")
 @Controller("school")
 export class SchoolController {
   constructor(
-    private service: SchoolService,
-    private esamwadService: EsamwadSchoolService,
-    private hasuraService: HasuraSchoolService,
     @Inject(EsamwadSchoolToken) private eSamwadProvider: IServicelocator,
     @Inject(SunbirdSchoolToken) private sunbirdProvider: IServicelocator,
     @Inject(HasuraSchoolToken) private hasuraProvider: IServicelocator
@@ -59,10 +46,13 @@ export class SchoolController {
     strategy: "excludeAll",
   })
   public async getSchool(@Param("id") id: string, @Req() request: Request) {
-    if (process.env.ADAPTER === Adapter.HASURA) {
-      return this.hasuraService.getSchool(id);
+    if (process.env.ADAPTERSOURCE === Adapter.HASURA) {
+      return this.hasuraProvider.getSchool(id, request);
+    } else if (process.env.ADAPTERSOURCE === "esamwad") {
+      return this.eSamwadProvider.getSchool(id, request);
+    } else if (process.env.ADAPTERSOURCE === "sunbird") {
+      return this.sunbirdProvider.getSchool(id, request);
     }
-    return this.service.getSchool(id, request);
   }
 
   @Post()
@@ -75,10 +65,13 @@ export class SchoolController {
     @Req() request: Request,
     @Body() schoolDto: SchoolDto
   ) {
-    if (process.env.ADAPTER === Adapter.HASURA) {
-      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    if (process.env.ADAPTERSOURCE === Adapter.HASURA) {
+      return this.hasuraProvider.createSchool(request, schoolDto);
+    } else if (process.env.ADAPTERSOURCE === "esamwad") {
+      return this.eSamwadProvider.createSchool(request, schoolDto);
+    } else if (process.env.ADAPTERSOURCE === "sunbird") {
+      return this.sunbirdProvider.createSchool(request, schoolDto);
     }
-    return this.service.createSchool(request, schoolDto);
   }
 
   @Put("/:id")
@@ -91,10 +84,13 @@ export class SchoolController {
     @Req() request: Request,
     @Body() schoolDto: SchoolDto
   ) {
-    if (process.env.ADAPTER === Adapter.HASURA) {
-      throw new MethodNotAllowedException(); // not supported on Hasura Adapter
+    if (process.env.ADAPTERSOURCE === Adapter.HASURA) {
+      return this.hasuraProvider.updateSchool(id, request, schoolDto);
+    } else if (process.env.ADAPTERSOURCE === "esamwad") {
+      return this.eSamwadProvider.updateSchool(id, request, schoolDto);
+    } else if (process.env.ADAPTERSOURCE === "sunbird") {
+      return this.sunbirdProvider.updateSchool(id, request, schoolDto);
     }
-    return await this.service.updateSchool(id, request, schoolDto);
   }
   @Post("/search")
   @ApiBasicAuth("access-token")
@@ -109,12 +105,12 @@ export class SchoolController {
     @Req() request: Request,
     @Body() schoolSearchDto: SchoolSearchDto
   ) {
-    if (process.env.ADAPTER === "sunbird") {
-      return this.sunbirdProvider.searchSchool(request, schoolSearchDto);
-    } else if (process.env.ADAPTER === "esamwad") {
-      return this.eSamwadProvider.searchSchool(request, schoolSearchDto);
-    } else if (process.env.ADAPTER === Adapter.HASURA) {
+    if (process.env.ADAPTERSOURCE === Adapter.HASURA) {
       return this.hasuraProvider.searchSchool(request, schoolSearchDto);
+    } else if (process.env.ADAPTERSOURCE === "esamwad") {
+      return this.eSamwadProvider.searchSchool(request, schoolSearchDto);
+    } else if (process.env.ADAPTERSOURCE === "sunbird") {
+      return this.sunbirdProvider.searchSchool(request, schoolSearchDto);
     }
   }
 }

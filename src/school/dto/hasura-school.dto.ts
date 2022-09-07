@@ -100,6 +100,13 @@ export class HasuraSchoolDto {
 
   @ApiProperty({
     type: String,
+    description: "The cluster of the school",
+  })
+  @Expose()
+  cluster: string;
+
+  @ApiProperty({
+    type: String,
     description: "The locationId of the school",
   })
   @Expose()
@@ -169,6 +176,7 @@ export class HasuraSchoolDto {
     this.block = obj?.location?.block ? `${obj.location.block}` : "";
     this.district = obj?.location?.district ? `${obj.location.district}` : "";
     this.stateId = obj?.stateId ? `${obj.stateId}` : "";
+    this.cluster = obj?.location?.cluster ? `${obj.location.cluster}` : "";
     this.pincode = obj?.pincode ? obj.pincode : "";
     this.locationId = obj?.location_id ? `${obj.location_id}` : "";
     this.enrollCount = obj?.enroll_count ? `${obj.enroll_count}` : "";
