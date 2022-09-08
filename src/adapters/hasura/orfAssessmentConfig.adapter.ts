@@ -54,7 +54,10 @@ export class OrfAssessmentConfigService {
     const record = result[0] ? result[0] : null;
     let bookIds = [];
     if (record)  {
-      bookIds = record.book_ids.slice(0, bookIdsGradeCount[record["grade"]]);
+      bookIds = record.book_ids.sort(
+        () => Math.random() - 0.5,
+      );
+      bookIds = bookIds.slice(0, bookIdsGradeCount[record["grade"]]);
     }
 
     return new SuccessResponse({
