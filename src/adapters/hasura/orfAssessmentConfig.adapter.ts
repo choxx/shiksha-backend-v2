@@ -48,23 +48,26 @@ export class OrfAssessmentConfigService {
     }
 
     const response = await this.appService.hasuraGraphQLCall(data);
-    const result = response?.data?.data?.sa_orf_assessment_config?.map(
-      (item: HasuraDto) => new HasuraDto(item)
-    );
-    const record = result[0] ? result[0] : null;
     let bookIds = [];
-    if (record)  {
-      bookIds = record.book_ids.sort(
+    response?.data?.data?.sa_orf_assessment_config?.map(
+      (item: HasuraDto) => {
+        const dto = new HasuraDto(item);
+        bookIds = bookIds.concat(dto.book_ids);
+        return dto;
+      }
+    );
+    if (bookIds.length)  {
+      bookIds = bookIds.sort(
         () => Math.random() - 0.5,
       );
-      bookIds = bookIds.slice(0, bookIdsGradeCount[record["grade"]]);
+      bookIds = bookIds.slice(0, bookIdsGradeCount[grade]);
     }
 
     return new SuccessResponse({
       statusCode: 200,
       message: "Ok.",
       data: {
-        'partner_code': record ? record["partner_code"] : null,
+        'partner_code': partner_code,
         'book_ids': bookIds
       },
     });
