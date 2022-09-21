@@ -148,6 +148,21 @@ export class TrackAssessmentService {
         query: `mutation CreateTrackAssessment($filter: String, $score: String, $totalScore:String, $source: String, $questions: String, $studentId: String, $teacherId: String, $type: String, $answersheet: String,$groupId:uuid, $subject:String, $status: String) {
           insert_trackassessment_one(object:{filter: $filter, score: $score, totalScore:$totalScore, source: $source, questions: $questions, studentId: $studentId, teacherId: $teacherId, type: $type, answersheet: $answersheet,groupId:$groupId,subject:$subject, status: $status}) {
             trackAssessmentId
+            answersheet
+            filter
+            created_at
+            updated_at
+            questions
+            score
+            totalScore
+            source
+            studentId
+            teacherId
+            groupId
+            subject
+            date
+            type
+            status
           }
         }`,
         variables: variables,
