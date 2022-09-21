@@ -84,9 +84,11 @@ export class TrackAssessmentService {
         const params = JSON.parse(jsonObj);
 
         let sum = 0;
-        params.children.map((e: any) => {
-          sum += e.score;
-          return sum;
+        params.map((item) => {
+          item.children.map((e: any) => {
+            sum += e.score;
+            return sum;
+          });
         });
         assessmentDto.score = sum.toString();
 
